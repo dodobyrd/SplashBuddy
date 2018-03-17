@@ -283,54 +283,6 @@ class Preferences {
     // MARK: - Software
     //-----------------------------------------------------------------------------------
 
-    func extractSoftware(from dict: NSDictionary) -> Software? {
-        guard let name = dict["packageName"] as? String else {
-            Log.write(string: "Error reading name from an application in io.fti.SplashBuddy",
-                      cat: "Preferences",
-                      level: .error)
-            return nil
-        }
-
-        guard let displayName: String = dict["displayName"] as? String else {
-            Log.write(string: "Error reading displayName from application \(name) in io.fti.SplashBuddy",
-                cat: "Preferences",
-                level: .error)
-            return nil
-        }
-
-        guard let description: String = dict["description"] as? String else {
-            Log.write(string: "Error reading description from application \(name) in io.fti.SplashBuddy",
-                cat: "Preferences",
-                level: .error)
-            return nil
-        }
-
-        guard let iconRelativePath: String = dict["iconRelativePath"] as? String else {
-            Log.write(string: "Error reading iconRelativePath from application \(name) in io.fti.SplashBuddy",
-                cat: "Preferences",
-                level: .error)
-            return nil
-        }
-
-        guard let canContinueBool: Bool = getBool(from: dict["canContinue"]) else {
-            Log.write(string: "Error reading canContinueBool from application \(name) in io.fti.SplashBuddy",
-                cat: "Preferences",
-                level: .error)
-            return nil
-        }
-
-        let iconPath = self.assetPath.appendingPathComponent(iconRelativePath).path
-
-        return Software(packageName: name,
-                        version: nil,
-                        status: .pending,
-                        iconPath: iconPath,
-                        displayName: displayName,
-                        description: description,
-                        canContinue: canContinueBool,
-                        displayToUser: true)
-    }
-
     /**
      Try to get a Bool from an Any (String, Int or Bool)
      
@@ -367,11 +319,12 @@ class Preferences {
             throw Preferences.Errors.noApplicationArray
         }
 
-        for application in applicationsArray {
-            guard let application = application as? NSDictionary else {
+        for currentRawSoftware in applicationsArray {
+            guard let rawSoftware = currentRawSoftware as? [String: Any] else {
                 throw Preferences.Errors.malformedApplication
             }
-            if let software = extractSoftware(from: application) {
+
+            if let software = Software(from: rawSoftware) {
                 SoftwareArray.sharedInstance.array.append(software)
             }
         }

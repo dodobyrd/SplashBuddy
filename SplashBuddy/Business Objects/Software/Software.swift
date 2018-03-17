@@ -18,13 +18,17 @@ import Cocoa
  
  */
 
+@objc
 class Software: NSObject {
+
+    // MARK: - Properties
 
     /**
      Status of the software.
      Default is .pending, other cases will be set while parsing the log
      */
-    @objc enum SoftwareStatus: Int {
+    @objc
+    enum SoftwareStatus: Int {
         case installing = 0
         case success = 1
         case failed = 2
@@ -35,10 +39,76 @@ class Software: NSObject {
     @objc dynamic var packageVersion: String?
     @objc dynamic var status: SoftwareStatus
     @objc dynamic var icon: NSImage?
+    @objc dynamic var iconography = [Int: NSImage]()
     @objc dynamic var displayName: String?
     @objc dynamic var desc: String?
     @objc dynamic var canContinue: Bool
     @objc dynamic var displayToUser: Bool
+
+    // MARK: - Constants
+
+    private enum CodingKeys: String {
+        case name
+        case displayName
+        case description
+        case iconRelativePath
+        case iconography
+        case canContinue
+    }
+
+    // MARK: - Initialization
+
+    init?(from dictionary: [String: Any]) {
+        guard let packageName = dictionary[CodingKeys.name.rawValue] as? String else {
+            Log.write(string: "Error reading name from an application in io.fti.SplashBuddy", cat: "Preferences", level: .error)
+            return nil
+        }
+
+        self.packageName = packageName
+        self.status = .pending
+
+        if let displayName = dictionary[CodingKeys.displayName.rawValue] as? String {
+            self.displayName = displayName
+        } else {
+            Log.write(string: "Error reading displayName from application \(packageName) in io.fti.SplashBuddy", cat: "Preferences", level: .fault)
+        }
+
+        if let description = dictionary[CodingKeys.description.rawValue] as? String {
+            self.desc = description
+        } else {
+            Log.write(string: "Error reading description from application \(packageName) in io.fti.SplashBuddy", cat: "Preferences", level: .fault)
+        }
+
+        if let iconRelativePath = dictionary[CodingKeys.iconRelativePath.rawValue] as? String, !iconRelativePath.isEmpty {
+            let absolutePath = Preferences.sharedInstance.assetPath.appendingPathComponent(iconRelativePath).path
+            self.icon = NSImage(contentsOfFile: absolutePath)
+        } else {
+            Log.write(string: "Error reading iconRelativePath from application \(packageName) in io.fti.SplashBuddy", cat: "Preferences", level: .fault)
+            self.icon = NSImage(named: NSImage.Name.folder)
+        }
+
+        // Populate iconography from dictionary of icons
+        if let iconography = dictionary[CodingKeys.iconography.rawValue] as? [Int: String] {
+            for currentIconography in iconography {
+                // Check that the current key exists as a SoftwareStatus
+                if SoftwareStatus(rawValue: currentIconography.key) != nil {
+                    let absolutePath = Preferences.sharedInstance.assetPath.appendingPathComponent(currentIconography.value).path
+                    self.iconography[currentIconography.key] = NSImage(contentsOfFile: absolutePath)
+                }
+            }
+        }
+
+        if let canContinue = dictionary[CodingKeys.canContinue.rawValue] as? Bool {
+            self.canContinue = canContinue
+        } else {
+            self.canContinue = true
+            Log.write(string: "Error reading canContinue from application \(packageName) in io.fti.SplashBuddy", cat: "Preferences", level: .error)
+        }
+
+        displayToUser = false
+
+        super.init()
+    }
 
     /**
      Manually initializes a Software Object

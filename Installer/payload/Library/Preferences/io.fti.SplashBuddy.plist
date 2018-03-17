@@ -8,6 +8,29 @@
 			<key>canContinue</key>
 			<false/>
 			<key>description</key>
+			<string></string>
+			<key>displayName</key>
+			<string>MultIcons</string>
+			<key>iconRelativePath</key>
+			<string>multicons.png</string>
+			<key>iconography</key>
+			<dict>
+				<key>0</key>
+				<string>multicons_installing.png</string>
+				<key>1</key>
+				<string>multicons_success.png</string>
+				<key>2</key>
+				<string>multicons_failed.png</string>
+				<key>3</key>
+				<string>multicons_pending.png</string>
+			</dict>
+			<key>packageName</key>
+			<string></string>
+		</dict>
+		<dict>
+			<key>canContinue</key>
+			<false/>
+			<key>description</key>
 			<string>SSO</string>
 			<key>displayName</key>
 			<string>Enterprise Connect</string>
