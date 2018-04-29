@@ -11,9 +11,6 @@ env:
 before_install:
   - gem install xcpretty
 
-before_script:
-  - pod lib lint --quick
-
 script:
   - set -o pipefail && xcodebuild clean test -project SplashBuddy.xcodeproj -scheme SplashBuddy -destination "$DESTINATION" | xcpretty
 
