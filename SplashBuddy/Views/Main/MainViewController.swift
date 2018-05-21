@@ -134,8 +134,20 @@ class MainViewController: NSViewController, NSTableViewDataSource {
                                              comment: "Displayed when cannot load HTML bundle")
             self.webView.loadHTMLString(errorMsg, baseURL: nil)
         }
+        
+        //  Sets refresh rate
+        if let refreshRate = Preferences.sharedInstance.webRefreshRate {
+            let refreshQueue = DispatchQueue(label: "Web Refresh", qos: .background, attributes: .concurrent, autoreleaseFrequency: .inherit, target: nil)
+            refreshQueue.async {
+                while true {
+                    sleep(UInt32(refreshRate))
+                    DispatchQueue.main.async {
+                        self.webView.reload()
+                    }
+                }
+            }
         }
-    
+    }
     @IBOutlet weak var sendButton: NSButton!
     @IBAction func evalForm(_ sender: Any) {
         let js = """

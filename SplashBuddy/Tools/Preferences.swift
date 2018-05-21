@@ -32,6 +32,9 @@ class Preferences {
         } else {
             self.assetPath = URL(fileURLWithPath: "/Library/Application Support/SplashBuddy", isDirectory: true)
         }
+        if let webRefreshRate = self.userDefaults.value(forKey: "webRefreshRate") {
+            self.webRefreshRate = webRefreshRate as? Int
+        }
 
         // TSTJamfLog is meant for unit testing only.
         if let jamfLogPath: String = self.userDefaults.string(forKey: "TSTJamfLog") {
@@ -86,6 +89,7 @@ class Preferences {
      * or the WKWebView will display white.
      */
     var assetPath: URL
+    var webRefreshRate: Int?
 
     //-----------------------------------------------------------------------------------
     // MARK: - Continue Button
