@@ -6,13 +6,27 @@
 //
 
 import Foundation
+import Cocoa
 
 extension MainViewController {
 
     /// User pressed the continue (or restart, logout…) button
     @IBAction func pressedContinueButton(_ sender: AnyObject) {
-        Preferences.sharedInstance.setupDone = true
-        Preferences.sharedInstance.continueAction.pressed(sender)
+        if Preferences.sharedInstance.applicationSideMenu {
+            let applicationSideView = storyboard?.instantiateController(withIdentifier: .init("ApplicationSideView")) as? NSWindowController
+            guard let window = applicationSideView?.window else {   return  }
+            window.makeKeyAndOrderFront(self)
+            window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.maximumWindow)) - 1)
+            let appDelegate = NSApp.delegate as! AppDelegate
+            for window in appDelegate.windows {
+                window.close()
+            }
+            self.view.window?.close()
+        }
+        else {
+            Preferences.sharedInstance.setupDone = true
+            Preferences.sharedInstance.continueAction.pressed(sender)
+        }
     }
 
     /// Set the initial state of the view

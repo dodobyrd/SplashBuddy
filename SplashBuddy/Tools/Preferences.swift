@@ -64,7 +64,7 @@ class Preferences {
         }
     }
 
-    internal func getFileHandle(from file: String = "/var/log/jamf.log") -> FileHandle? {
+    internal func getFileHandle(from file: String = "jamf.log") -> FileHandle? {
         do {
             return try FileHandle(forReadingFrom: URL(fileURLWithPath: file, isDirectory: false))
         } catch {
@@ -124,6 +124,11 @@ class Preferences {
     /// set to `true` to enable Big Notification
     public var labMode: Bool {
         return self.userDefaults.bool(forKey: "labMode")
+    }
+    
+    /// set to `true` to enable applicationSideMenu
+    public var applicationSideMenu: Bool {
+        return self.userDefaults.bool(forKey: "applicationSideMenu")
     }
 
     //-----------------------------------------------------------------------------------

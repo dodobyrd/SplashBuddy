@@ -43,7 +43,11 @@ class MainViewController: NSViewController, NSTableViewDataSource {
         self.webView.layer?.isOpaque = true
 
         // Setup the Continue Button
-        self.continueButton.title = Preferences.sharedInstance.continueAction.localizedName
+        if Preferences.sharedInstance.applicationSideMenu {
+            self.continueButton.title = "Continue"
+        } else {
+            self.continueButton.title = Preferences.sharedInstance.continueAction.localizedName
+        }
 
         // Setup the Notifications
 

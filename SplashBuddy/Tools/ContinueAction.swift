@@ -35,7 +35,6 @@ struct ContinueButton {
 
             case "hidden":
                 return .hidden
-
             default:
                 if FileManager.default.fileExists(atPath: string) {
                     return .launchProgram(path: string)
