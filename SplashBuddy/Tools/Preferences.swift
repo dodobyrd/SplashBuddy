@@ -64,7 +64,7 @@ class Preferences {
         }
     }
 
-    internal func getFileHandle(from file: String = "jamf.log") -> FileHandle? {
+    internal func getFileHandle(from file: String = "/var/log/jamf.log") -> FileHandle? {
         do {
             return try FileHandle(forReadingFrom: URL(fileURLWithPath: file, isDirectory: false))
         } catch {
