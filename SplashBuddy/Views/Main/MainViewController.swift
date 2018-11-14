@@ -194,14 +194,16 @@ class MainViewController: NSViewController, NSTableViewDataSource {
 
         // Display Alert if /var/log/jamf.log doesn't exist
         guard Preferences.sharedInstance.logFileHandle != nil else {
-            let alert = NSAlert()
+            if let currentWindow = self.view.window {
+                let alert = NSAlert()
 
-            alert.alertStyle = .critical
-            alert.messageText = "Jamf is not installed correctly"
-            alert.informativeText = "/var/log/jamf.log is missing"
-            alert.addButton(withTitle: "Quit")
-            alert.beginSheetModal(for: self.view.window!) { (_) in
-                self.pressedContinueButton(self)
+                alert.alertStyle = .critical
+                alert.messageText = "Jamf is not installed correctly"
+                alert.informativeText = "/var/log/jamf.log is missing"
+                alert.addButton(withTitle: "Quit")
+                alert.beginSheetModal(for: currentWindow) { [unowned self] _ in
+                    self.pressedContinueButton(self)
+                }
             }
 
             return
@@ -213,24 +215,28 @@ class MainViewController: NSViewController, NSTableViewDataSource {
                 return
             }
 
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [unowned self] in
                 self.sendButton.isHidden = false
                 self.continueButton.isHidden = true
             }
-            self.webView.loadFileURL(form, allowingReadAccessTo: Preferences.sharedInstance.assetPath)
+
+            webView.loadFileURL(form, allowingReadAccessTo: Preferences.sharedInstance.assetPath)
+
             Log.write(string: "Injecting Javascript.", cat: "UserInput", level: .debug)
-            self.webView.evaluateJavaScript(self.enterKeyJS, completionHandler: nil)
+
+            webView.evaluateJavaScript(self.enterKeyJS, completionHandler: nil)
         } else if let html = Preferences.sharedInstance.html {
             if Preferences.sharedInstance.formDone {
                 Log.write(string: "Form already completed.", cat: "UserInput", level: .debug)
             }
-            DispatchQueue.main.async {
+
+            DispatchQueue.main.async { [unowned self] in
                 self.continueButton.isHidden = Preferences.sharedInstance.continueAction.isHidden
             }
 
-            self.webView.loadFileURL(html, allowingReadAccessTo: Preferences.sharedInstance.assetPath)
+            webView.loadFileURL(html, allowingReadAccessTo: Preferences.sharedInstance.assetPath)
         } else {
-            self.webView.loadHTMLString(NSLocalizedString("error.create_missing_bundle"), baseURL: nil)
+            webView.loadHTMLString(NSLocalizedString("error.create_missing_bundle"), baseURL: nil)
         }
     }
 
