@@ -201,8 +201,10 @@ class MainViewController: NSViewController, NSTableViewDataSource {
                 alert.messageText = "Jamf is not installed correctly"
                 alert.informativeText = "/var/log/jamf.log is missing"
                 alert.addButton(withTitle: "Quit")
-                alert.beginSheetModal(for: currentWindow) { [unowned self] _ in
-                    self.pressedContinueButton(self)
+                alert.beginSheetModal(for: currentWindow) { [weak self] _ in
+                    guard let strongSelf = self else { return }
+
+                    strongSelf.pressedContinueButton(strongSelf)
                 }
             }
 
@@ -215,9 +217,11 @@ class MainViewController: NSViewController, NSTableViewDataSource {
                 return
             }
 
-            DispatchQueue.main.async { [unowned self] in
-                self.sendButton.isHidden = false
-                self.continueButton.isHidden = true
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+
+                strongSelf.sendButton.isHidden = false
+                strongSelf.continueButton.isHidden = true
             }
 
             webView.loadFileURL(form, allowingReadAccessTo: Preferences.sharedInstance.assetPath)
@@ -230,8 +234,10 @@ class MainViewController: NSViewController, NSTableViewDataSource {
                 Log.write(string: "Form already completed.", cat: "UserInput", level: .debug)
             }
 
-            DispatchQueue.main.async { [unowned self] in
-                self.continueButton.isHidden = Preferences.sharedInstance.continueAction.isHidden
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+
+                strongSelf.continueButton.isHidden = Preferences.sharedInstance.continueAction.isHidden
             }
 
             webView.loadFileURL(html, allowingReadAccessTo: Preferences.sharedInstance.assetPath)
